@@ -4,87 +4,132 @@ import org.junit.jupiter.api.Test;
 public class PegSolitaireLogicTest {
 
     @Test
-    void testBoardInitialization() {
+    void testBoardInitializationManual() {
 
-        PegSolitaireLogic logic = new PegSolitaireLogic(7, "English");
+        PegSolitaireGame game = new ManualGame(7, "English");
 
-        assertEquals(7, logic.getSize());
-        assertEquals("English", logic.getType());
+        assertEquals(7, game.getSize());
+        assertEquals("English", game.getType());
     }
 
     @Test
-    void testStartNewGame() {
+    void testStartNewGameManual() {
 
-        PegSolitaireLogic logic = new PegSolitaireLogic(7, "Diamond");
+        PegSolitaireGame game = new ManualGame(7, "Diamond");
 
-        logic.startNewGame();
+        game.startNewGame();
 
-        int pegCount = logic.getPegCount();
+        int pegCount = game.getPegCount();
 
         assertTrue(pegCount > 0);
     }
 
     @Test
-    void testValidMove() {
+    void testValidMoveManual() {
 
-        PegSolitaireLogic logic = new PegSolitaireLogic(7, "English");
+        PegSolitaireGame game = new ManualGame(7, "English");
 
-        boolean result = logic.isValidMove(3,1,3,3);
-
-        assertTrue(result);
+        assertTrue(game.isValidMove(3,1,3,3));
     }
 
     @Test
-    void testInvalidMove() {
+    void testInvalidMoveManual() {
 
-        PegSolitaireLogic logic = new PegSolitaireLogic(7, "English");
+        PegSolitaireGame game = new ManualGame(7, "English");
 
-        boolean result = logic.isValidMove(0,0,0,1);
-
-        assertFalse(result);
+        assertFalse(game.isValidMove(0,0,0,1));
     }
 
     @Test
-    void testMakeMove() {
+    void testMakeMoveManual() {
 
-        PegSolitaireLogic logic = new PegSolitaireLogic(7, "English");
+        PegSolitaireGame game = new ManualGame(7, "English");
 
-        boolean moved = logic.makeMove(3,1,3,3);
+        boolean moved = game.makeMove(3,1,3,3);
 
         assertTrue(moved);
     }
 
     @Test
-    void testPegCountDecreaseAfterMove() {
+    void testPegCountDecreaseAfterMoveManual() {
 
-        PegSolitaireLogic logic = new PegSolitaireLogic(7, "English");
+        PegSolitaireGame game = new ManualGame(7, "English");
 
-        int before = logic.getPegCount();
+        int before = game.getPegCount();
 
-        logic.makeMove(3,1,3,3);
+        game.makeMove(3,1,3,3);
 
-        int after = logic.getPegCount();
+        int after = game.getPegCount();
 
         assertTrue(after < before);
     }
 
     @Test
-    void testWinCondition() {
+    void testWinConditionManual() {
 
-        PegSolitaireLogic logic = new PegSolitaireLogic(3, "English");
+        PegSolitaireGame game = new ManualGame(3, "English");
 
-        boolean win = logic.checkWin();
-
-        assertFalse(win);
+        assertFalse(game.checkWin());
     }
 
     @Test
-    void testMovesRemaining() {
+    void testMovesRemainingManual() {
 
-        PegSolitaireLogic logic = new PegSolitaireLogic(7, "English");
+        PegSolitaireGame game = new ManualGame(7, "English");
 
-        boolean moves = logic.hasMovesLeft();
+        assertTrue(game.hasMovesLeft());
+    }
 
-        assertTrue(moves);
+    @Test
+    void testBoardInitializationAutomated() {
+
+        PegSolitaireGame game = new AutomatedGame(7, "English");
+
+        assertEquals(7, game.getSize());
+        assertEquals("English", game.getType());
+    }
+
+    @Test
+    void testAutoMoveExecutes() {
+
+        PegSolitaireGame game = new AutomatedGame(7, "English");
+
+        int before = game.getPegCount();
+
+        boolean moved = game.playTurn(); // automated move
+
+        int after = game.getPegCount();
+
+        assertTrue(moved);
+        assertTrue(after < before);
+    }
+
+    @Test
+    void testAutoMoveUntilNoMovesLeft() {
+
+        PegSolitaireGame game = new AutomatedGame(7, "English");
+
+        int safetyCounter = 0;
+
+        // keep playing automatically
+        while (game.hasMovesLeft() && safetyCounter < 1000) {
+            game.playTurn();
+            safetyCounter++;
+        }
+
+        // Game should eventually stop
+        assertFalse(game.hasMovesLeft() || game.getPegCount() <= 1);
+    }
+
+    @Test
+    void testRandomizeBoard() {
+
+        PegSolitaireGame game = new AutomatedGame(7, "English");
+
+        game.randomizeBoard();
+
+        int pegCount = game.getPegCount();
+
+        assertTrue(pegCount >= 0); // just ensure it runs without crash
     }
 }
